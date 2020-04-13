@@ -29,14 +29,11 @@ class CarsModel extends createModel {
 
     find({
         skip, filter = {}
-    }){
-        console.log(filter);
-        const results = this.knex.select()
+    }) {
+        return this.knex.select()
             .from(this.tableName)
             .where(filter)
-            .limit(PAGE_SIZE).offset(toNumber(PAGE_SIZE)*toNumber(skip));
-
-        return results;
+            .limit(PAGE_SIZE).offset(toNumber(PAGE_SIZE) * toNumber(skip));
     }
 }
 
