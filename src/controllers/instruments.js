@@ -59,6 +59,15 @@ class InstrumentsController {
             next(err);
         }
     }
+
+    static async getOne(req, res, next) {
+        try {
+            const [instrument] = await Instrument.findById(req.params.id);
+            res.send({ instrument});
+        } catch (err) {
+            next(err);
+        }
+    }
 }
 
 module.exports = InstrumentsController;

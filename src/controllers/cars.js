@@ -61,6 +61,15 @@ class CarsController {
             next(err);
         }
     }
+
+    static async getOne(req, res, next) {
+        try {
+            const [car] = await Car.findById(req.params.id);
+            res.send({ car });
+        } catch (err) {
+            next(err);
+        }
+    }
 }
 
 module.exports = CarsController;

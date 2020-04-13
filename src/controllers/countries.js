@@ -59,6 +59,15 @@ class CountriesController {
             next(err);
         }
     }
+
+    static async getOne(req, res, next) {
+        try {
+            const [country] = await Country.findById(requ.params.ide);
+            res.send({ country});
+        } catch (err) {
+            next(err);
+        }
+    }
 }
 
 module.exports = CountriesController;

@@ -61,6 +61,15 @@ class AnimalsController {
             next(err);
         }
     }
+
+    static async getOne(req, res, next) {
+        try {
+            const [animal] =await Animal.findById(req.params.id);
+            res.send({ animal });
+        } catch (err) {
+            next(err);
+        }
+    }
 }
 
 module.exports = AnimalsController;
