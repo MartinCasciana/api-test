@@ -49,7 +49,7 @@ module.exports = {
                 },
                 brand: {type: 'string'},
                 model: {type: 'string'},
-                year: {type: 'string'}
+                year: {type: 'integer'}
             }
         },
         Instruments: {
@@ -91,6 +91,18 @@ module.exports = {
                 },
                 message: {type: 'string'}
             }
+        }
+    },
+    parameters: {
+        Path: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: {
+                type: 'string',
+                format: 'uuid'
+            },
+            description: 'ID'
         }
     },
     securitySchemes: {
