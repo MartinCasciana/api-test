@@ -109,7 +109,7 @@ module.exports = {
             requestBody: {
                 description: 'Modificar',
                 required: true,
-                content: {'application/json': {scehma: {$ref: '#/components/chemas/Countries'}}}
+                content: {'application/json': {scehma: {$ref: '#/components/schemas/Countries'}}}
             },
             responses: {
                 200: {
@@ -125,7 +125,7 @@ module.exports = {
                 },
                 default: {
                     description: 'Errir',
-                    content: {'application/json': {schema: {$ref: '#/components/chemas/Error'}}}
+                    content: {'application/json': {schema: {$ref: '#/components/schemas/Error'}}}
                 }
             }
         },

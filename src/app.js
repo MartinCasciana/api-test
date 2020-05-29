@@ -1,10 +1,9 @@
-const express = require('express');
-const morgan = require('morgan');
+const express = require('express')();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const path = require('path');
-const helmet = require('helmet');
+const swaggerUi = require('swagger-ui-express');
+const {OpenApiValidator} = require('express-openapi-validator');
 
 const mongoose = require('./helpers/mongoose');
 const logger = require('./helpers/logger');
@@ -23,14 +22,14 @@ class App {
         /**
          * @var {express} app
          */
-        this.app = express();
-        process.env.SRC_PATH = path.resolve(__dirname);
+        this.app = express;
     }
 
     test() {
-        this.app.use(bodyParser.json({limit: BODY_LIMIT}));
-        this.app.use(bodyParser.urlencoded({extended: true}));
+        express.use(bodyParser.json({limit: BODY_LIMIT}));
+        express.use(bodyParser.urlencoded({extended: true}));
         this._routes();
+        return express;
     }
 
     _onListening() {
@@ -44,11 +43,11 @@ class App {
         process.exit;
     }
 
-    init() {
-        this._configure();
-        this.app.listen(PORT, this._onListening);
-        this.app.on('error', this._onError);
-        return this.app;
+    async init() {
+        await this._configure();
+        express.listen(PORT, this._onListening);
+        express.on('error', this._onError);
+        return express;
     }
 
     _configure() {
@@ -58,44 +57,29 @@ class App {
     }
 
     _middleWares() {
-        this.app.use(bodyParser.json({limit: BODY_LIMIT}));
-        this.app.use(bodyParser.urlencoded({extended: true}));
-        this.app.use(cookieParser());
-        if (NODE_ENV === 'development') {
-            this.app.use(morgan('dev'));
-            this.app.use(cors({
-                credentials: true,
-                origin: /^http:\/\/localhost/
-            }));
-        } else if(NODE_ENV !== 'test') {
-            this.app.disable('x-powered-by');
-            this.app.use(helmet());
-            this.app.use(helmet.noSniff());
-            this.app.use(helmet.referrerPolicy({ policy: 'same-origin' }));
-            this.app.use(helmet.featurePolicy({
-                features: {
-                    fullscreen: ['\'self\''],
-                    vibrate: ['\'none\''],
-                    payment: ['indec.gob.ar'],
-                    syncXhr: ['\'none\'']
-                }
-            }));
-            this.app.use(helmet.contentSecurityPolicy({
-                directives: {
-                    defaultSrc: ['\'self\''],
-                    styleSrc: ['\'self\'', 'maxcdn.bootstrapcdn.com']
-                }
-            }));
-            const sixtyDaysInSeconds = 15768000;
-            this.app.use(helmet.hsts({maxAge: sixtyDaysInSeconds}));
-            this.app.use(morgan('combined'));
-            this.app.use(cors());
-        }
+        express.use(bodyParser.json({limit: BODY_LIMIT}));
+        express.use(bodyParser.urlencoded({extended: true}));
+        express.use(cookieParser());
+        express.use(cors({
+            credentials: true,
+            origin: /^http:\/\/localhost/
+        }));
+
         return;
     }
 
-    _routes() {
-        return Router.configure(this.app);
+    async _routes() {
+        const apiSpec = include('openapi');
+        const options = {swaggerOptions: {validatorUrl: null}};
+        express.use('/docs', swaggerUi.serve, swaggerUi.setup(apiSpec, options));
+
+        await new OpenApiValidator({
+            apiSpec,
+            validateRequests: true,
+            validateResponses: true
+        }).install(express);
+        Router.configure(express);
+        return;
     }
 }
 
